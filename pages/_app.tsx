@@ -27,7 +27,7 @@ function MyApp({ Component, pageProps }: AppProps) {
     <QueryClientProvider client={queryClient}>
       <Hydrate state={pageProps.dehydratedState}>
         {JSON.stringify(pageProps.dehydratedState)}
-        <ChakraProvider theme={theme}>
+        <ChakraProvider>
           <Component {...pageProps} />
         </ChakraProvider>
       </Hydrate>
