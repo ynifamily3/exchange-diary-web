@@ -1,18 +1,12 @@
 import { AppProps } from "next/app";
-import { ChakraProvider, extendTheme } from "@chakra-ui/react";
+import { ChakraProvider } from "@chakra-ui/react";
 import { Hydrate, QueryClient, QueryClientProvider } from "react-query";
 import { useState } from "react";
 import { ReactQueryDevtools } from "react-query/devtools";
+import axios from "axios";
 
-const colors = {
-  brand: {
-    900: "#1a365d",
-    800: "#153e75",
-    700: "#2a69ac",
-  },
-};
-
-const theme = extendTheme({ colors });
+// axios baseURL 설정
+axios.defaults.baseURL = process.env.NEXT_PUBLIC_HOST;
 
 function MyApp({ Component, pageProps }: AppProps) {
   const [queryClient] = useState(
@@ -26,7 +20,6 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <QueryClientProvider client={queryClient}>
       <Hydrate state={pageProps.dehydratedState}>
-        {JSON.stringify(pageProps.dehydratedState)}
         <ChakraProvider>
           <Component {...pageProps} />
         </ChakraProvider>

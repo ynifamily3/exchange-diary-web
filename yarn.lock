@@ -921,6 +921,13 @@
   resolved "https://registry.yarnpkg.com/@rushstack/eslint-patch/-/eslint-patch-1.1.0.tgz#7f698254aadf921e48dda8c0a6b304026b8a9323"
   integrity sha512-JLo+Y592QzIE+q7Dl2pMUtt4q8SKYI5jDrZxrozEQxnGVOyYE+GWK9eLkwTaeN9DDctlaRAQ3TBmzZ1qdLE30A==
 
+"@types/axios@^0.14.0":
+  version "0.14.0"
+  resolved "https://registry.yarnpkg.com/@types/axios/-/axios-0.14.0.tgz#ec2300fbe7d7dddd7eb9d3abf87999964cafce46"
+  integrity sha1-7CMA++fX3d1+udOr+HmZlkyvzkY=
+  dependencies:
+    axios "*"
+
 "@types/json5@^0.0.29":
   version "0.0.29"
   resolved "https://registry.yarnpkg.com/@types/json5/-/json5-0.0.29.tgz#ee28707ae94e11d2b827bcbe5270bcea7f3e71ee"
@@ -1136,6 +1143,13 @@ axe-core@^4.3.5:
   version "4.3.5"
   resolved "https://registry.yarnpkg.com/axe-core/-/axe-core-4.3.5.tgz#78d6911ba317a8262bfee292aeafcc1e04b49cc5"
   integrity sha512-WKTW1+xAzhMS5dJsxWkliixlO/PqC4VhmO9T4juNYcaTg9jzWiJsou6m5pxWYGfigWbwzJWeFY6z47a+4neRXA==
+
+axios@*, axios@^0.25.0:
+  version "0.25.0"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-0.25.0.tgz#349cfbb31331a9b4453190791760a8d35b093e0a"
+  integrity sha512-cD8FOb0tRH3uuEe6+evtAbgJtfxr7ly3fQjYcMcuPlgkwVS9xboaVIpcDV+cYQe+yGykgwZCs1pzjntcGa6l5g==
+  dependencies:
+    follow-redirects "^1.14.7"
 
 axobject-query@^2.2.0:
   version "2.2.0"
@@ -1835,12 +1849,24 @@ flatted@^3.1.0:
   resolved "https://registry.yarnpkg.com/flatted/-/flatted-3.2.4.tgz#28d9969ea90661b5134259f312ab6aa7929ac5e2"
   integrity sha512-8/sOawo8tJ4QOBX8YlQBMxL8+RLZfxMQOif9o0KUKTNTjMYElWPE0r/m5VNFxTRd0NSw8qSy8dajrwX4RYI1Hw==
 
+focus-lock@^0.10.1:
+  version "0.10.1"
+  resolved "https://registry.yarnpkg.com/focus-lock/-/focus-lock-0.10.1.tgz#5f46fa74fefb87144479c2f8e276f0eedd8081b2"
+  integrity sha512-b9yUklCi4fTu2GXn7dnaVf4hiLVVBp7xTiZarAHMODV2To6Bitf6F/UI67RmKbdgJQeVwI1UO0d9HYNbXt3GkA==
+  dependencies:
+    tslib "^2.0.3"
+
 focus-lock@^0.9.1:
   version "0.9.2"
   resolved "https://registry.yarnpkg.com/focus-lock/-/focus-lock-0.9.2.tgz#9d30918aaa99b1b97677731053d017f82a540d5b"
   integrity sha512-YtHxjX7a0IC0ZACL5wsX8QdncXofWpGPNoVMuI/nZUrPGp6LmNI6+D5j0pPj+v8Kw5EpweA+T5yImK0rnWf7oQ==
   dependencies:
     tslib "^2.0.3"
+
+follow-redirects@^1.14.7:
+  version "1.14.7"
+  resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.14.7.tgz#2004c02eb9436eee9a21446a6477debf17e81685"
+  integrity sha512-+hbxoLbFMbRKDwohX8GkTataGqO6Jb7jGwpAlwgy2bIz25XtRm7KEzJM76R1WiNT5SwZkX4Y75SwBolkpmE7iQ==
 
 framer-motion@^5:
   version "5.6.0"
@@ -2767,6 +2793,18 @@ react-focus-lock@2.5.2:
   dependencies:
     "@babel/runtime" "^7.0.0"
     focus-lock "^0.9.1"
+    prop-types "^15.6.2"
+    react-clientside-effect "^1.2.5"
+    use-callback-ref "^1.2.5"
+    use-sidecar "^1.0.5"
+
+react-focus-lock@^2.7.1:
+  version "2.7.1"
+  resolved "https://registry.yarnpkg.com/react-focus-lock/-/react-focus-lock-2.7.1.tgz#a9fbb3fa4efaee32162406e5eb96ae658964193b"
+  integrity sha512-ImSeVmcrLKNMqzUsIdqOkXwTVltj79OPu43oT8tVun7eIckA4VdM7UmYUFo3H/UC2nRVgagMZGFnAOQEDiDYcA==
+  dependencies:
+    "@babel/runtime" "^7.0.0"
+    focus-lock "^0.10.1"
     prop-types "^15.6.2"
     react-clientside-effect "^1.2.5"
     use-callback-ref "^1.2.5"

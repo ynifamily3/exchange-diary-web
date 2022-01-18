@@ -1,30 +1,137 @@
-import type { NextPage } from "next";
+import type { GetServerSideProps, NextPage } from "next";
 import Head from "next/head";
 import NextLink from "next/link";
 import { css } from "@emotion/react";
 import {
+  Badge,
   Box,
   Button,
-  CircularProgress,
+  ButtonGroup,
   Container,
   Flex,
+  FormControl,
+  FormLabel,
   Heading,
   HStack,
   IconButton,
-  Link,
-  LinkBox,
-  LinkOverlay,
+  Input,
+  Popover,
+  PopoverArrow,
+  PopoverContent,
+  PopoverTrigger,
+  Portal,
+  Skeleton,
   Spacer,
   Stack,
   Text,
+  useDisclosure,
   VStack,
 } from "@chakra-ui/react";
 import { ArrowLeftIcon, ArrowRightIcon } from "@chakra-ui/icons";
 import Image from "next/image";
-import { useState } from "react";
+import React, { forwardRef, useEffect, useRef } from "react";
+import { dehydrate, QueryClient, useMutation, useQuery } from "react-query";
+import { getMyInfo } from "../repo/myinfo";
+import { Login, postLogin } from "../repo/login";
+
+type InputProps = React.ComponentProps<typeof Input>;
+
+type TextInputProps = InputProps & {
+  label: string;
+  id: string;
+};
+export const getServerSideProps: GetServerSideProps = async ({ req }) => {
+  const queryClient = new QueryClient();
+  const isCSR = !req || (req.url && req.url.startsWith("/_next/data"));
+  if (!isCSR) {
+    await Promise.all([queryClient.prefetchQuery("myInfo", getMyInfo)]);
+  }
+  return {
+    props: {
+      dehydratedState: dehydrate(queryClient),
+    },
+  };
+};
+
+const TextInput = forwardRef<HTMLInputElement, TextInputProps>((props, ref) => {
+  return (
+    <FormControl>
+      <FormLabel htmlFor={props.id}>{props.label}</FormLabel>
+      <Input {...props} id={props.id} ref={ref} />
+    </FormControl>
+  );
+});
+TextInput.displayName = "TextInput"; // eslint error를 피할 수 있다.
+
+const LoginForm = ({
+  firstFieldRef,
+  onCancel,
+}: {
+  firstFieldRef: React.RefObject<HTMLInputElement>;
+  onCancel: () => void;
+}) => {
+  const [idValue, setIdValue] = React.useState("");
+  const [passwordValue, setPasswordValue] = React.useState("");
+  const mutation = useMutation(postLogin);
+  // console.log(mutation);
+  const isDisabled = !idValue || !passwordValue;
+  const isLogining = mutation.isLoading;
+
+  const handleLogin = () => {
+    console.log("로그인 시도 트리거");
+    mutation.mutate({ id: idValue, password: passwordValue });
+  };
+
+  // handle enter key
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      if (isLogining) return;
+      if (isDisabled) return;
+      handleLogin();
+    }
+  };
+
+  return (
+    <Stack spacing={4}>
+      <TextInput
+        label="아이디"
+        id="id"
+        ref={firstFieldRef}
+        value={idValue}
+        onChange={(e) => setIdValue(e.target.value)}
+        onKeyDown={handleKeyDown}
+      />
+      <TextInput
+        label="비밀번호"
+        id="password"
+        type="password"
+        value={passwordValue}
+        onChange={(e) => setPasswordValue(e.target.value)}
+        onKeyDown={handleKeyDown}
+      />
+      <ButtonGroup d="flex" justifyContent="flex-end">
+        <Button onClick={onCancel}>취소</Button>
+        <Button
+          isDisabled={isDisabled}
+          colorScheme={"teal"}
+          isLoading={isLogining}
+          onClick={handleLogin}
+        >
+          로그인
+        </Button>
+      </ButtonGroup>
+    </Stack>
+  );
+};
+LoginForm.displayName = "LoginForm";
 
 const Home: NextPage = () => {
-  const [loading, setLoading] = useState(false);
+  const { onOpen, onClose, isOpen } = useDisclosure();
+  const { data, isLoading } = useQuery("myInfo", getMyInfo);
+  const firstFieldRef = useRef<HTMLInputElement>(null);
+  const isLogin = data?.isLogin;
+  const hasNickname = typeof data?.nickname === "string";
+  const nickname = hasNickname ? data.nickname : "";
   return (
     <div>
       <Head>
@@ -34,18 +141,29 @@ const Home: NextPage = () => {
         <HStack>
           <Heading paddingBlock={3}>교환일기</Heading>
           <Spacer />
-          <Button
-            isLoading={loading}
-            onClick={() => {
-              setLoading(true);
-              setTimeout(() => {
-                setLoading(false);
-              }, 1000);
-            }}
-            loadingText="로그아웃 중..."
+          {isLoading && <Skeleton width="30px" height="18px" />}
+          {hasNickname && <Badge colorScheme="green">{nickname}</Badge>}
+          <Popover
+            isOpen={isOpen}
+            initialFocusRef={firstFieldRef}
+            onOpen={onOpen}
+            onClose={onClose}
+            placement="bottom-end"
+            /* 3rd party extension 상호작용 문제 등이 발생할 수 있음 ex) 1password */
+            closeOnBlur={false}
           >
-            로그아웃
-          </Button>
+            <PopoverTrigger>
+              <Button>로그인</Button>
+            </PopoverTrigger>
+            <Portal>
+              <PopoverContent p={5}>
+                {/* <FocusLock> */}
+                <PopoverArrow />
+                <LoginForm firstFieldRef={firstFieldRef} onCancel={onClose} />
+                {/* </FocusLock> */}
+              </PopoverContent>
+            </Portal>
+          </Popover>
         </HStack>
         <VStack
           as="article"
