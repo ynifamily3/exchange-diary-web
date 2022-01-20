@@ -49,7 +49,7 @@ type TextInputProps = InputProps & {
 };
 export const getServerSideProps: GetServerSideProps = async ({ req }) => {
   const queryClient = new QueryClient();
-  const isCSR = !req || (req.url && req.url.startsWith("/_next/data"));
+  const isCSR = !req || (req.url && req.url.startsWith("/_next/data")); // /
   if (!isCSR) {
     const cookies = req.headers.cookie;
     await Promise.all([
@@ -59,6 +59,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
   console.log(req.url);
   return {
     props: {
+      isCSR,
       requrl: req.url,
       dehydratedState: dehydrate(queryClient),
     },
