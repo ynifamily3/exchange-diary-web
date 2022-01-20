@@ -6,7 +6,8 @@ import { ReactQueryDevtools } from "react-query/devtools";
 import axios from "axios";
 
 // axios baseURL 설정
-axios.defaults.baseURL = process.env.NEXT_PUBLIC_HOST;
+const isServer = typeof window === "undefined";
+axios.defaults.baseURL = isServer ? "http://localhost:3000" : "";
 
 function MyApp({ Component, pageProps }: AppProps) {
   const [queryClient] = useState(
