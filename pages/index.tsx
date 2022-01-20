@@ -29,10 +29,17 @@ import {
 } from "@chakra-ui/react";
 import { ArrowLeftIcon, ArrowRightIcon } from "@chakra-ui/icons";
 import Image from "next/image";
-import React, { forwardRef, useEffect, useRef } from "react";
-import { dehydrate, QueryClient, useMutation, useQuery } from "react-query";
-import { getMyInfo } from "../repo/myinfo";
-import { Login, postLogin } from "../repo/login";
+import React, { forwardRef, useRef } from "react";
+import {
+  dehydrate,
+  QueryClient,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "react-query";
+import { getMyInfo, MyInfo } from "../repo/myinfo";
+import { postLogin } from "../repo/login";
+import { postLogout } from "../repo/logout";
 
 type InputProps = React.ComponentProps<typeof Input>;
 
@@ -44,7 +51,10 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
   const queryClient = new QueryClient();
   const isCSR = !req || (req.url && req.url.startsWith("/_next/data"));
   if (!isCSR) {
-    await Promise.all([queryClient.prefetchQuery("myInfo", getMyInfo)]);
+    const cookies = req.headers.cookie;
+    await Promise.all([
+      queryClient.prefetchQuery("myInfo", () => getMyInfo(cookies)),
+    ]);
   }
   return {
     props: {
@@ -70,15 +80,30 @@ const LoginForm = ({
   firstFieldRef: React.RefObject<HTMLInputElement>;
   onCancel: () => void;
 }) => {
+  const queryClient = useQueryClient();
   const [idValue, setIdValue] = React.useState("");
   const [passwordValue, setPasswordValue] = React.useState("");
-  const mutation = useMutation(postLogin);
-  // console.log(mutation);
+  const mutation = useMutation(postLogin, {
+    // onMutate: async (variables) => {
+    //   await queryClient.cancelQueries("myInfo"); // 이거 별도로 설정 했던가?
+    //   const optimisticResponse: MyInfo = {
+    //     isLogin: true,
+    //   };
+    //   queryClient.setQueryData("myInfo", optimisticResponse);
+    // },
+    onSuccess: () => {
+      queryClient.invalidateQueries("myInfo");
+      // close the popover
+      onCancel();
+    },
+    // onError: () => {
+    //   queryClient.setQueryData<MyInfo>("myInfo", { isLogin: false });
+    // },
+  });
   const isDisabled = !idValue || !passwordValue;
   const isLogining = mutation.isLoading;
 
   const handleLogin = () => {
-    console.log("로그인 시도 트리거");
     mutation.mutate({ id: idValue, password: passwordValue });
   };
 
@@ -98,7 +123,8 @@ const LoginForm = ({
         id="id"
         ref={firstFieldRef}
         value={idValue}
-        onChange={(e) => setIdValue(e.target.value)}
+        onChange={(e: any) => setIdValue(e.target.value)}
+        disabled={isLogining}
         onKeyDown={handleKeyDown}
       />
       <TextInput
@@ -106,7 +132,8 @@ const LoginForm = ({
         id="password"
         type="password"
         value={passwordValue}
-        onChange={(e) => setPasswordValue(e.target.value)}
+        onChange={(e: any) => setPasswordValue(e.target.value)}
+        disabled={isLogining}
         onKeyDown={handleKeyDown}
       />
       <ButtonGroup d="flex" justifyContent="flex-end">
@@ -127,11 +154,30 @@ LoginForm.displayName = "LoginForm";
 
 const Home: NextPage = () => {
   const { onOpen, onClose, isOpen } = useDisclosure();
-  const { data, isLoading } = useQuery("myInfo", getMyInfo);
+  const queryClient = useQueryClient();
+  const mutation = useMutation(postLogout, {
+    // onMutate: async () => {
+    //   // 기존 로그인 정보
+    //   const myInfo = queryClient.getQueryData<MyInfo>("myInfo");
+    //   await queryClient.cancelQueries("myInfo");
+    //   queryClient.setQueryData("myInfo", { isLogin: false });
+    //   // 기존 로그인 정보 context로 쓰게 리턴
+    //   return myInfo;
+    // },
+    onSuccess: () => {
+      queryClient.invalidateQueries("myInfo");
+    },
+    // onError: (_, __, context) => {
+    //   if (context) queryClient.setQueryData<MyInfo>("myInfo", context);
+    // },
+  });
+  const { data, isFetching } = useQuery("myInfo", () => getMyInfo());
   const firstFieldRef = useRef<HTMLInputElement>(null);
   const isLogin = data?.isLogin;
-  const hasNickname = typeof data?.nickname === "string";
-  const nickname = hasNickname ? data.nickname : "";
+  const nickname = data?.nickname ?? "";
+  const handleLogout = () => {
+    mutation.mutate();
+  };
   return (
     <div>
       <Head>
@@ -141,29 +187,36 @@ const Home: NextPage = () => {
         <HStack>
           <Heading paddingBlock={3}>교환일기</Heading>
           <Spacer />
-          {isLoading && <Skeleton width="30px" height="18px" />}
-          {hasNickname && <Badge colorScheme="green">{nickname}</Badge>}
-          <Popover
-            isOpen={isOpen}
-            initialFocusRef={firstFieldRef}
-            onOpen={onOpen}
-            onClose={onClose}
-            placement="bottom-end"
-            /* 3rd party extension 상호작용 문제 등이 발생할 수 있음 ex) 1password */
-            closeOnBlur={false}
-          >
-            <PopoverTrigger>
-              <Button>로그인</Button>
-            </PopoverTrigger>
-            <Portal>
-              <PopoverContent p={5}>
-                {/* <FocusLock> */}
-                <PopoverArrow />
-                <LoginForm firstFieldRef={firstFieldRef} onCancel={onClose} />
-                {/* </FocusLock> */}
-              </PopoverContent>
-            </Portal>
-          </Popover>
+          {isFetching && <Skeleton width="30px" height="18px" />}
+          {isLogin && <Badge colorScheme="green">{nickname}</Badge>}
+          {!isLogin && (
+            <Popover
+              isOpen={isOpen}
+              initialFocusRef={firstFieldRef}
+              onOpen={onOpen}
+              onClose={onClose}
+              placement="bottom-end"
+              /* 3rd party extension 상호작용 문제 등이 발생할 수 있음 ex) 1password */
+              closeOnBlur={false}
+            >
+              <PopoverTrigger>
+                <Button>로그인</Button>
+              </PopoverTrigger>
+              <Portal>
+                <PopoverContent p={5}>
+                  {/* <FocusLock> */}
+                  <PopoverArrow />
+                  <LoginForm firstFieldRef={firstFieldRef} onCancel={onClose} />
+                  {/* </FocusLock> */}
+                </PopoverContent>
+              </Portal>
+            </Popover>
+          )}
+          {isLogin && (
+            <Button onClick={handleLogout} isLoading={mutation.isLoading}>
+              로그아웃
+            </Button>
+          )}
         </HStack>
         <VStack
           as="article"

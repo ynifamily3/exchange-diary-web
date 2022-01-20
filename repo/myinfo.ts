@@ -1,10 +1,20 @@
 import axios from "axios";
-interface MyInfo {
+
+export interface MyInfo {
   isLogin: boolean;
   nickname?: string;
 }
 
-export const getMyInfo = async (): Promise<MyInfo> => {
-  const res = await axios.get<MyInfo>("/api/myinfo");
+export const getMyInfo = async (injectedCookie?: string): Promise<MyInfo> => {
+  const res = await axios.get<MyInfo>(
+    "/api/myinfo",
+    injectedCookie
+      ? {
+          headers: {
+            Cookie: injectedCookie,
+          },
+        }
+      : undefined
+  );
   return res.data;
 };

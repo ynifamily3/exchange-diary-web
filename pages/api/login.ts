@@ -1,4 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
+import fs from "fs";
+import jsonwebtoken from "jsonwebtoken";
+import path from "path";
 
 type RequestBody = {
   id: string;
@@ -22,20 +25,23 @@ export default async function handler(
 
   // get request body
   const { id, password } = req.body as RequestBody;
-  console.log("login attempt", id, password);
+  const configDirectory = path.resolve(process.cwd(), "config");
+  const privateKey = fs.readFileSync(
+    path.join(configDirectory, "private.key"),
+    "utf8"
+  );
+  const token = jsonwebtoken.sign(
+    {
+      id,
+      nickname: "닉:" + id,
+    },
+    privateKey,
+    { algorithm: "HS256", expiresIn: "1h" }
+  );
 
   // set cookie
   res.setHeader("Set-Cookie", [
-    `accessToken=${`eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMTIiLCJuYW1lIjoiTWllbCIsImlhdCI6MTUxNjIzOTAyMn0.4pkDNatCQ71Afkv9MkrXyDaKfaDcdqrZOUNrP-qLcWI`};SameSite=Strict;Path=/;HttpOnly`,
-    `refreshToken=${password};SameSite=Strict;Path=/;HttpOnly`,
+    `accessToken=${token};SameSite=Strict;Path=/;HttpOnly`,
   ]);
-
-  // delay 2000ms
-  await new Promise((resolve) => setTimeout(resolve, 2000));
-
-  res.status(200).json({
-    accessToken: "accessToken",
-    refreshToken: "refreshToken",
-    nickname: "미엘",
-  });
+  res.status(204).end();
 }

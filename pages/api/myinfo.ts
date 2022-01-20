@@ -1,4 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
+import { auth } from "../../middleware/auth";
 
 type Response = {
   isLogin: boolean;
@@ -11,10 +12,19 @@ export default async function handler(
 ) {
   if (req.method !== "GET") {
     res.status(500).end();
+    return;
+  }
+
+  const decoded = auth(req, res);
+  if (!decoded) {
+    res.status(200).json({
+      isLogin: false,
+    });
+    return;
   }
 
   res.status(200).json({
     isLogin: true,
-    nickname: "미엘",
+    nickname: decoded.nickname,
   });
 }
