@@ -56,8 +56,10 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
       queryClient.prefetchQuery("myInfo", () => getMyInfo(cookies)),
     ]);
   }
+  console.log(req.url);
   return {
     props: {
+      requrl: req.url,
       dehydratedState: dehydrate(queryClient),
     },
   };
@@ -152,7 +154,8 @@ const LoginForm = ({
 };
 LoginForm.displayName = "LoginForm";
 
-const Home: NextPage = () => {
+const Home: NextPage = (p) => {
+  console.log(p);
   const { onOpen, onClose, isOpen } = useDisclosure();
   const queryClient = useQueryClient();
   const mutation = useMutation(postLogout, {
