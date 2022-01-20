@@ -57,9 +57,11 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
     ]);
   }
   console.log(req.url);
+  const testValue = await getMyInfo();
   return {
     props: {
       isCSR,
+      testValue,
       requrl: req.url,
       dehydratedState: dehydrate(queryClient),
     },
