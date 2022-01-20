@@ -26,10 +26,11 @@ export default async function handler(
   // get request body
   const { id, password } = req.body as RequestBody;
   const configDirectory = path.resolve(process.cwd(), "config");
-  const privateKey = fs.readFileSync(
-    path.join(configDirectory, "private.key"),
-    "utf8"
-  );
+  const privateKey = process.env.JWT_KEY || "";
+  // const privateKey = fs.readFileSync(
+  //   path.join(configDirectory, "private.key"),
+  //   "utf8"
+  // );
   const token = jsonwebtoken.sign(
     {
       id,

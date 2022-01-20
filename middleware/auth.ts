@@ -17,10 +17,11 @@ export const auth = (
   res: NextApiResponse
 ): JWT<Payload> | null => {
   const configDirectory = path.resolve(process.cwd(), "config");
-  const privateKey = fs.readFileSync(
-    path.join(configDirectory, "private.key"),
-    "utf8"
-  ); // from cookie
+  const privateKey = process.env.JWT_KEY || "";
+  // const privateKey = fs.readFileSync(
+  //   path.join(configDirectory, "private.key"),
+  //   "utf8"
+  // ); // from cookie
   const token = req.cookies["accessToken"];
   if (!token) {
     return null;
