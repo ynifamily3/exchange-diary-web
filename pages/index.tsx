@@ -37,9 +37,10 @@ import {
   useQuery,
   useQueryClient,
 } from "react-query";
-import { getMyInfo, MyInfo } from "../repo/myinfo";
+import { getMyInfo } from "../repo/myinfo";
 import { postLogin } from "../repo/login";
 import { postLogout } from "../repo/logout";
+import { myInfoService } from "../service/myInfoService";
 
 type InputProps = React.ComponentProps<typeof Input>;
 
@@ -49,20 +50,17 @@ type TextInputProps = InputProps & {
 };
 export const getServerSideProps: GetServerSideProps = async ({ req }) => {
   const queryClient = new QueryClient();
-  const isCSR = !req || (req.url && req.url.startsWith("/_next/data")); // /
+  const isCSR = !req || (req.url && req.url.startsWith("/_next/data"));
   if (!isCSR) {
-    const cookies = req.headers.cookie;
+    const cookies = req.cookies;
     await Promise.all([
-      queryClient.prefetchQuery("myInfo", () => getMyInfo(cookies)),
+      queryClient.prefetchQuery("myInfo", () =>
+        myInfoService(cookies["accessToken"])
+      ),
     ]);
   }
-  console.log(req.url);
-  const testValue = await getMyInfo();
   return {
     props: {
-      isCSR,
-      testValue,
-      requrl: req.url,
       dehydratedState: dehydrate(queryClient),
     },
   };
@@ -89,21 +87,11 @@ const LoginForm = ({
   const [idValue, setIdValue] = React.useState("");
   const [passwordValue, setPasswordValue] = React.useState("");
   const mutation = useMutation(postLogin, {
-    // onMutate: async (variables) => {
-    //   await queryClient.cancelQueries("myInfo"); // 이거 별도로 설정 했던가?
-    //   const optimisticResponse: MyInfo = {
-    //     isLogin: true,
-    //   };
-    //   queryClient.setQueryData("myInfo", optimisticResponse);
-    // },
     onSuccess: () => {
       queryClient.invalidateQueries("myInfo");
       // close the popover
       onCancel();
     },
-    // onError: () => {
-    //   queryClient.setQueryData<MyInfo>("myInfo", { isLogin: false });
-    // },
   });
   const isDisabled = !idValue || !passwordValue;
   const isLogining = mutation.isLoading;
@@ -158,29 +146,17 @@ const LoginForm = ({
 LoginForm.displayName = "LoginForm";
 
 const Home: NextPage = (p) => {
-  console.log(p);
   const { onOpen, onClose, isOpen } = useDisclosure();
   const queryClient = useQueryClient();
   const mutation = useMutation(postLogout, {
-    // onMutate: async () => {
-    //   // 기존 로그인 정보
-    //   const myInfo = queryClient.getQueryData<MyInfo>("myInfo");
-    //   await queryClient.cancelQueries("myInfo");
-    //   queryClient.setQueryData("myInfo", { isLogin: false });
-    //   // 기존 로그인 정보 context로 쓰게 리턴
-    //   return myInfo;
-    // },
     onSuccess: () => {
       queryClient.invalidateQueries("myInfo");
     },
-    // onError: (_, __, context) => {
-    //   if (context) queryClient.setQueryData<MyInfo>("myInfo", context);
-    // },
   });
   const { data, isFetching } = useQuery("myInfo", () => getMyInfo());
   const firstFieldRef = useRef<HTMLInputElement>(null);
-  const isLogin = data?.isLogin;
-  const nickname = data?.nickname ?? "";
+  const isLogin = data && data.isLogin;
+  const nickname = data && data.isLogin && data.nickname;
   const handleLogout = () => {
     mutation.mutate();
   };

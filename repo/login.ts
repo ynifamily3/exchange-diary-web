@@ -1,19 +1,12 @@
+import { LoginApiResult } from "./../types/index";
 import axios from "axios";
-export interface Login {
-  isLogin: boolean;
-  nickname?: string;
-}
-
+import { LoginApiInput } from "../types";
 export const postLogin = async ({
   id,
   password,
-}: {
-  id: string;
-  password: string;
-}): Promise<Login> => {
-  const res = await axios.post<Login>("/api/login", {
+}: LoginApiInput): Promise<LoginApiResult> => {
+  await axios.post("/api/login", {
     id,
     password,
   });
-  return res.data;
 };

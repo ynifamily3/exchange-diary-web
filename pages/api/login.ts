@@ -1,22 +1,10 @@
+import { LoginServiceInput } from "../../types";
+import { loginService } from "./../../service/loginService";
 import type { NextApiRequest, NextApiResponse } from "next";
-import fs from "fs";
-import jsonwebtoken from "jsonwebtoken";
-import path from "path";
-
-type RequestBody = {
-  id: string;
-  password: string;
-};
-
-type Response = {
-  accessToken: string;
-  refreshToken: string;
-  nickname: string;
-};
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<Response>
+  res: NextApiResponse
 ) {
   if (req.method !== "POST") {
     res.status(500).end();
@@ -24,25 +12,19 @@ export default async function handler(
   }
 
   // get request body
-  const { id, password } = req.body as RequestBody;
-  const configDirectory = path.resolve(process.cwd(), "config");
-  const privateKey = process.env.JWT_KEY || "";
-  // const privateKey = fs.readFileSync(
-  //   path.join(configDirectory, "private.key"),
-  //   "utf8"
-  // );
-  const token = jsonwebtoken.sign(
-    {
-      id,
-      nickname: "닉:" + id,
-    },
-    privateKey,
-    { algorithm: "HS256", expiresIn: "1h" }
-  );
+  const { id, password } = req.body as LoginServiceInput;
+
+  const token = await loginService({ id, password });
+
+  if (!token) {
+    res.status(500).end();
+    return;
+  }
 
   // set cookie
   res.setHeader("Set-Cookie", [
     `accessToken=${token};SameSite=Strict;Path=/;HttpOnly`,
   ]);
+
   res.status(204).end();
 }
