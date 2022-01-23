@@ -8,13 +8,18 @@ export type MyInfo = {
   id: string;
   nickname: string;
 };
+
+export type SignUpInput = {
+  memberId: string;
+  memberNickname: string;
+  memberPassword: string;
+};
 export type AccessToken = string;
 
 export type JWT<Payload> = Payload & {
   iat: number;
   exp: number;
 };
-
 export type JWTMyinfoPayload = MyInfo;
 
 // Provided to Service Functions input & result
@@ -29,7 +34,13 @@ export type MyInfoServiceResult =
       isLogin: false;
     };
 
+export type SignUpServiceInput = SignUpInput;
+export type SignUpServiceResult = AccessToken;
+
 // API payload & result
 export type LoginApiInput = Identity;
 export type LoginApiResult = void;
+
+export type SignUpApiInput = SignUpInput;
+export type SignUpApiResult = void;
 export type MyInfoApiResult = MyInfoServiceResult;

@@ -145,7 +145,7 @@ const LoginForm = ({
 };
 LoginForm.displayName = "LoginForm";
 
-const Home: NextPage = (p) => {
+const Home: NextPage = () => {
   const { onOpen, onClose, isOpen } = useDisclosure();
   const queryClient = useQueryClient();
   const mutation = useMutation(postLogout, {
@@ -153,7 +153,7 @@ const Home: NextPage = (p) => {
       queryClient.invalidateQueries("myInfo");
     },
   });
-  const { data, isFetching } = useQuery("myInfo", () => getMyInfo());
+  const { data, isFetching } = useQuery("myInfo", getMyInfo);
   const firstFieldRef = useRef<HTMLInputElement>(null);
   const isLogin = data && data.isLogin;
   const nickname = data && data.isLogin && data.nickname;
@@ -161,7 +161,7 @@ const Home: NextPage = (p) => {
     mutation.mutate();
   };
   return (
-    <div>
+    <>
       <Head>
         <title>교환일기</title>
       </Head>
@@ -198,6 +198,11 @@ const Home: NextPage = (p) => {
             <Button onClick={handleLogout} isLoading={mutation.isLoading}>
               로그아웃
             </Button>
+          )}
+          {!isLogin && (
+            <NextLink href="/signup" passHref>
+              <Button as="a">회원가입</Button>
+            </NextLink>
           )}
         </HStack>
         <VStack
@@ -297,7 +302,7 @@ const Home: NextPage = (p) => {
           </Box>
         </VStack>
       </Container>
-    </div>
+    </>
   );
 };
 
