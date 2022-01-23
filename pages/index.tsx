@@ -25,11 +25,12 @@ import {
   Stack,
   Text,
   useDisclosure,
+  useToast,
   VStack,
 } from "@chakra-ui/react";
 import { ArrowLeftIcon, ArrowRightIcon } from "@chakra-ui/icons";
 import Image from "next/image";
-import React, { forwardRef, useRef } from "react";
+import React, { forwardRef, useEffect, useRef } from "react";
 import {
   dehydrate,
   QueryClient,
@@ -83,6 +84,7 @@ const LoginForm = ({
   firstFieldRef: React.RefObject<HTMLInputElement>;
   onCancel: () => void;
 }) => {
+  const toast = useToast({ isClosable: true, position: "top-end" });
   const queryClient = useQueryClient();
   const [idValue, setIdValue] = React.useState("");
   const [passwordValue, setPasswordValue] = React.useState("");
@@ -92,6 +94,17 @@ const LoginForm = ({
       // close the popover
       onCancel();
     },
+    onError: () => {
+      // handle login Error
+      toast({
+        id: "login-error",
+        title: "로그인",
+        description: "아이디 또는 비밀번호가 일치하지 않습니다.",
+        status: "error",
+        duration: 5 * 1000,
+      });
+    },
+    onSettled: () => {},
   });
   const isDisabled = !idValue || !passwordValue;
   const isLogining = mutation.isLoading;
@@ -147,6 +160,7 @@ LoginForm.displayName = "LoginForm";
 
 const Home: NextPage = () => {
   const { onOpen, onClose, isOpen } = useDisclosure();
+  const toast = useToast();
   const queryClient = useQueryClient();
   const mutation = useMutation(postLogout, {
     onSuccess: () => {
@@ -160,6 +174,25 @@ const Home: NextPage = () => {
   const handleLogout = () => {
     mutation.mutate();
   };
+  useEffect(() => {
+    console.log("run effect");
+    // get cookie
+    const cookies = document.cookie;
+    // extract redirectReason from cookie
+    const redirectReason = cookies
+      .split(";")
+      .find((cookie) => cookie.startsWith("redirectReason="))
+      ?.split("=")[1];
+    // remove cookie
+    document.cookie = "redirectReason=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    if (!redirectReason) return;
+    toast({
+      title: redirectReason,
+      description: `로그인이 필요합니다.`,
+    });
+    onOpen();
+    setTimeout(() => firstFieldRef.current?.focus(), 0); // 이상하게 수동으로 트리거 해 줘야 한다.
+  }, [toast, onOpen]);
   return (
     <>
       <Head>

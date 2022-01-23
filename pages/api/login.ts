@@ -1,3 +1,4 @@
+import { setLoginCookie } from "./../../middleware/setLoginCookie";
 import { LoginServiceInput } from "../../types";
 import { loginService } from "./../../service/loginService";
 import type { NextApiRequest, NextApiResponse } from "next";
@@ -20,11 +21,6 @@ export default async function handler(
     res.status(500).end();
     return;
   }
-
-  // set cookie
-  res.setHeader("Set-Cookie", [
-    `accessToken=${token};SameSite=Strict;Path=/;HttpOnly`,
-  ]);
-
+  setLoginCookie(res, token);
   res.status(204).end();
 }

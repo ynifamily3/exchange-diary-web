@@ -15,6 +15,11 @@ export type SignUpInput = {
   memberPassword: string;
 };
 export type AccessToken = string;
+export type Tokens = {
+  accessToken: string;
+  refreshToken: string;
+  accessTokenExpireTime: string;
+};
 
 export type JWT<Payload> = Payload & {
   iat: number;
@@ -24,7 +29,7 @@ export type JWTMyinfoPayload = MyInfo;
 
 // Provided to Service Functions input & result
 export type LoginServiceInput = Identity;
-export type LoginServiceResult = AccessToken;
+export type LoginServiceResult = Tokens | null;
 export type MyInfoServiceInput = AccessToken;
 export type MyInfoServiceResult =
   | ({
@@ -35,7 +40,7 @@ export type MyInfoServiceResult =
     };
 
 export type SignUpServiceInput = SignUpInput;
-export type SignUpServiceResult = AccessToken;
+export type SignUpServiceResult = LoginServiceResult;
 
 // API payload & result
 export type LoginApiInput = Identity;

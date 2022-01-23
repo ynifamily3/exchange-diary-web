@@ -1,26 +1,20 @@
-import jsonwebtoken from "jsonwebtoken";
-
-type Identity = {
-  id: string;
-  password: string;
-};
-type AccessToken = string;
-
+import axios from "axios";
+import { Identity, LoginServiceResult } from "../types";
 export const loginService = async (
   identity: Identity
-): Promise<AccessToken> => {
+): Promise<LoginServiceResult> => {
   const { id, password } = identity;
-  const privateKey = process.env.JWT_KEY || "";
-
-  // TODO 백엔드와 통신해서 결과 얻어오기
-  const accessToken = jsonwebtoken.sign(
-    {
-      id,
-      nickname: `${id}의 닉네임`,
-    },
-    privateKey,
-    { algorithm: "HS256", expiresIn: "1h" }
-  );
-
-  return accessToken;
+  try {
+    const rst = await axios.post<LoginServiceResult>(
+      "/member/login",
+      {
+        memberId: id,
+        memberPassword: password,
+      },
+      { baseURL: process.env.BACKEND_URL }
+    );
+    return rst.data;
+  } catch (e) {
+    return null;
+  }
 };

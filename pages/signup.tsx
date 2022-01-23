@@ -2,7 +2,13 @@ import type { GetServerSideProps, NextPage } from "next";
 import Head from "next/head";
 import NextLink from "next/link";
 import { css } from "@emotion/react";
-import { dehydrate, QueryClient, useMutation, useQuery } from "react-query";
+import {
+  dehydrate,
+  QueryClient,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "react-query";
 import { myInfoService } from "../service/myInfoService";
 import { getMyInfo } from "../repo/myinfo";
 import {
@@ -20,6 +26,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { SignUpApiInput } from "../types";
 import { postSignUp } from "../repo/signup";
+import { useRouter } from "next/router";
 
 export const getServerSideProps: GetServerSideProps = async ({ req }) => {
   const queryClient = new QueryClient();
@@ -40,16 +47,14 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
 };
 
 const SignUp: NextPage = () => {
+  const queryClient = useQueryClient();
   const {} = useQuery("myInfo", getMyInfo);
-  const { isLoading, mutate } = useMutation(postSignUp, {
-    onSuccess: () => {
-      console.log("선언부 onsuccess");
-    },
-  });
+  const { isLoading, mutate } = useMutation(postSignUp);
   const idInputRef = useRef<HTMLInputElement>(null);
   const agreeCheckboxRef = useRef<HTMLInputElement>(null);
   const [agreeChecked, setAgreeChecked] = useState(false);
   const toast = useToast();
+  const router = useRouter();
   useEffect(() => {
     if (agreeChecked) {
       idInputRef.current?.focus();
@@ -72,15 +77,27 @@ const SignUp: NextPage = () => {
     }
     mutate(signUpApiInput, {
       onSuccess: () => {
-        console.log("구현부 onsuccess");
+        // go to home page
+        toast({
+          title: "회원가입",
+          description: "회원가입이 완료되었습니다.",
+          status: "success",
+          duration: 5 * 1000,
+          isClosable: true,
+        });
+        // invalidate myInfo
+        queryClient.invalidateQueries("myInfo");
+        router.push("/");
       },
-    });
-    toast({
-      title: "회원가입",
-      description: "회원가입 돌연변이가 실행됨.",
-      status: "success",
-      duration: 3 * 1000,
-      isClosable: true,
+      onError: () => {
+        toast({
+          title: "회원가입",
+          description: "회원가입 실패",
+          status: "error",
+          duration: 5 * 1000,
+          isClosable: true,
+        });
+      },
     });
   };
 
