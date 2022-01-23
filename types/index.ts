@@ -5,8 +5,9 @@ export type Identity = {
 };
 
 export type MyInfo = {
-  id: string;
-  nickname: string;
+  memberId: string;
+  memberNickname: string;
+  memberJoinDate: string;
 };
 
 export type SignUpInput = {

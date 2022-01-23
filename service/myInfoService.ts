@@ -1,27 +1,18 @@
-import {
-  JWT,
-  JWTMyinfoPayload,
-  MyInfoServiceInput,
-  MyInfoServiceResult,
-} from "../types";
-import jsonwebtoken from "jsonwebtoken";
+import { MyInfo, MyInfoServiceInput, MyInfoServiceResult } from "../types";
+import axios from "axios";
 
 export const myInfoService = async (
   accessToken: MyInfoServiceInput
 ): Promise<MyInfoServiceResult> => {
-  const privateKey = process.env.JWT_KEY || "";
   try {
-    // TODO 백엔드와 통신해서 결과 얻어오기
-    const decoded = jsonwebtoken.verify(
-      accessToken,
-      privateKey
-    ) as JWT<JWTMyinfoPayload>;
-    const { id, nickname } = decoded;
-    return {
-      isLogin: true,
-      id,
-      nickname,
-    };
+    const profile = await axios.get<MyInfo>("/member/profile", {
+      headers: {
+        Authorization: accessToken,
+      },
+      baseURL: process.env.BACKEND_URL,
+    });
+    const ret: MyInfoServiceResult = { isLogin: true, ...profile.data };
+    return ret;
   } catch (e) {
     return {
       isLogin: false,

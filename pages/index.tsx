@@ -170,7 +170,7 @@ const Home: NextPage = () => {
   const { data, isFetching } = useQuery("myInfo", getMyInfo);
   const firstFieldRef = useRef<HTMLInputElement>(null);
   const isLogin = data && data.isLogin;
-  const nickname = data && data.isLogin && data.nickname;
+  const nickname = data && data.isLogin && data.memberNickname;
   const handleLogout = () => {
     mutation.mutate();
   };
