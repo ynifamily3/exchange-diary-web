@@ -20,6 +20,8 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { MyInfoServiceResult, SignUpApiInput } from "../types";
 import { postSignUp } from "../repo/signup";
+import { useRouter } from "next/router";
+import FontFaceObserver from "fontfaceobserver";
 
 export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
   const queryClient = new QueryClient();
@@ -48,10 +50,33 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
   };
 };
 
+const pretendardFont = new FontFaceObserver("Pretendard");
+
 const Write: NextPage = () => {
-  const {} = useQuery("myInfo", getMyInfo);
   const toast = useToast();
-  useEffect(() => {}, []);
+  const router = useRouter();
+  const { data: myInfoData } = useQuery("myInfo", getMyInfo);
+  const { data: pretendardFontData } = useQuery(
+    ["font", "Pretendard"],
+    async () => {
+      await pretendardFont.load();
+    },
+    { enabled: myInfoData?.isLogin, staleTime: Infinity }
+  );
+  // login check
+  useEffect(() => {
+    if (!myInfoData) return;
+    if (!myInfoData.isLogin) {
+      document.cookie = `redirectReason=Not Login; Path=/`;
+      router.replace("/");
+    }
+  }, [myInfoData, router]);
+
+  // font load
+
+  if (!myInfoData?.isLogin) {
+    return null;
+  }
 
   return (
     <>
@@ -60,7 +85,9 @@ const Write: NextPage = () => {
       </Head>
       <Container maxW="container.xl">
         <VStack>
-          <Heading paddingBlock={3}>일기 작성하기</Heading>
+          <Heading paddingBlock={3} fontFamily={"Pretendard"}>
+            일기 작성하기
+          </Heading>
           <Spacer />
         </VStack>
       </Container>

@@ -43,6 +43,10 @@ export type MyInfoServiceResult =
 export type SignUpServiceInput = SignUpInput;
 export type SignUpServiceResult = LoginServiceResult;
 
+export type RefreshTokenServiceInput = Omit<Tokens, "accessTokenExpireTime">;
+// TODO Define
+export type RefreshTokenServiceResult = Tokens | null;
+
 // API payload & result
 export type LoginApiInput = Identity;
 export type LoginApiResult = void;

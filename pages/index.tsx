@@ -203,7 +203,9 @@ const Home: NextPage = () => {
           <Heading paddingBlock={3}>교환일기</Heading>
           <Spacer />
           {isFetching && <Skeleton width="30px" height="18px" />}
-          {isLogin && <Badge colorScheme="green">{nickname}</Badge>}
+          {!isFetching && isLogin && (
+            <Badge colorScheme="green">{nickname}</Badge>
+          )}
           {!isLogin && (
             <Popover
               isOpen={isOpen}
@@ -271,7 +273,7 @@ const Home: NextPage = () => {
         </VStack>
         <VStack spacing={4} position={"relative"}>
           <Box>
-            <NextLink href="/hello" passHref>
+            <NextLink href="/write" passHref>
               <Button as="a">시작하기</Button>
             </NextLink>
           </Box>
