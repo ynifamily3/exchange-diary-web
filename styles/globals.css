@@ -5,3 +5,11 @@
   font-weight: 400;
   font-style: normal;
 }
+
+@font-face {
+  font-family: "ACC 어린이 마음고운체";
+  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2112-2@1.0/ACCchildrenheartOTF-Regular.woff")
+    format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
