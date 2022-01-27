@@ -31,6 +31,7 @@ import {
   IconButton,
   HStack,
   Tooltip,
+  Text,
 } from "@chakra-ui/react";
 import { createContext, useEffect, useMemo, useRef, useState } from "react";
 import { MyInfoServiceResult, SignUpApiInput } from "../types";
@@ -162,6 +163,7 @@ const Write: NextPage = () => {
           <Heading paddingBlock={3} fontFamily={"Pretendard"}>
             일기 작성하기
           </Heading>
+          <Text>쓴 글이나 첨부한 이미지 드래그 가능합니다.</Text>
           <Spacer />
           <Box alignSelf={"flex-start"}>
             <Menu autoSelect={false}>
