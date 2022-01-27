@@ -28,8 +28,11 @@ import {
   Flex,
   MenuList,
   MenuItem,
+  IconButton,
+  HStack,
+  Tooltip,
 } from "@chakra-ui/react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { createContext, useEffect, useMemo, useRef, useState } from "react";
 import { MyInfoServiceResult, SignUpApiInput } from "../types";
 import { postSignUp } from "../repo/signup";
 import { useRouter } from "next/router";
@@ -37,12 +40,17 @@ import FontFaceObserver from "fontfaceobserver";
 import { fontData, pretendardFont } from "../util/font";
 import {
   ArrowForwardIcon,
+  AttachmentIcon,
   CheckIcon,
   ChevronDownIcon,
   CloseIcon,
   SmallCloseIcon,
 } from "@chakra-ui/icons";
-// import { Image, Layer, Stage } from "react-konva";
+import dynamic from "next/dynamic";
+import { canvasContext, CanvasData } from "../context/canvas";
+const DiaryCanvas = dynamic(() => import("../components/DiaryCanvas"), {
+  ssr: false,
+});
 
 export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
   // const queryClient = new QueryClient();
@@ -127,9 +135,22 @@ const Write: NextPage = () => {
   //   return null;
   // }
   const [inlay, setInlay] = useState(0);
-  // base64 image
+  // blob url로 만들어진 image
   const [attachedImage, setAttachedImage] = useState<string | null>(null);
   const [content, setContent] = useState("");
+
+  const canvasData = useMemo<CanvasData>(() => {
+    return {
+      fontLoaded: fontReadyState[font],
+      font: fontData[font],
+      text: content,
+      imageUrl: attachedImage,
+      inlayImageUrl: inLayData[inlay],
+    };
+  }, [attachedImage, content, font, fontReadyState, inlay]);
+
+  const fileRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {}, [attachedImage]);
 
   return (
     <>
@@ -175,10 +196,40 @@ const Write: NextPage = () => {
               </MenuList>
             </Menu>
           </Box>
+          <input
+            type="file"
+            ref={fileRef}
+            onChange={(e) => {
+              // get file
+              const file = e.target.files?.[0];
+              if (!file) return;
+              // remove previous url
+              attachedImage && URL.revokeObjectURL(attachedImage);
+              const url = URL.createObjectURL(file);
+              setAttachedImage(url);
+            }}
+            style={{ display: "none" }}
+          />
+          <HStack spacing={4}>
+            <Textarea
+              placeholder="일기 내용"
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+            />
+            <Tooltip label="이미지 첨부" placement="bottom">
+              <IconButton
+                aria-label="Search database"
+                icon={<AttachmentIcon />}
+                onClick={() => {
+                  fileRef.current?.click();
+                }}
+              />
+            </Tooltip>
+          </HStack>
           <Box>
-            {/* <Stage width={500} height={500}>
-              <Layer></Layer>
-            </Stage> */}
+            <canvasContext.Provider value={canvasData}>
+              <DiaryCanvas />
+            </canvasContext.Provider>
           </Box>
         </VStack>
       </Container>
