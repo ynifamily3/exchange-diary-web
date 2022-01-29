@@ -27,24 +27,14 @@ import { useEffect, useRef, useState } from "react";
 import { SignUpApiInput } from "../types";
 import { postSignUp } from "../repo/signup";
 import { useRouter } from "next/router";
+import { withAdviceSSR } from "../middleware";
 
-export const getServerSideProps: GetServerSideProps = async ({ req }) => {
-  const queryClient = new QueryClient();
-  const isCSR = !req || (req.url && req.url.startsWith("/_next/data"));
-  if (!isCSR) {
-    const { cookies } = req;
-    await Promise.all([
-      queryClient.prefetchQuery("myInfo", () =>
-        myInfoService(cookies["accessToken"])
-      ),
-    ]);
-  }
+const getSignUpPageProps: GetServerSideProps = async () => {
   return {
-    props: {
-      dehydratedState: dehydrate(queryClient),
-    },
+    props: {},
   };
 };
+export const getServerSideProps = withAdviceSSR(getSignUpPageProps);
 
 const SignUp: NextPage = () => {
   const queryClient = useQueryClient();

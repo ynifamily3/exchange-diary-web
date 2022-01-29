@@ -31,17 +31,11 @@ import {
 import { ArrowLeftIcon, ArrowRightIcon } from "@chakra-ui/icons";
 import Image from "next/image";
 import React, { forwardRef, useEffect, useRef } from "react";
-import {
-  dehydrate,
-  QueryClient,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "react-query";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import { getMyInfo } from "../repo/myinfo";
 import { postLogin } from "../repo/login";
 import { postLogout } from "../repo/logout";
-import { myInfoService } from "../service/myInfoService";
+import { withAdviceSSR } from "../middleware";
 
 type InputProps = React.ComponentProps<typeof Input>;
 
@@ -49,23 +43,13 @@ type TextInputProps = InputProps & {
   label: string;
   id: string;
 };
-export const getServerSideProps: GetServerSideProps = async ({ req }) => {
-  const queryClient = new QueryClient();
-  const isCSR = !req || (req.url && req.url.startsWith("/_next/data"));
-  if (!isCSR) {
-    const cookies = req.cookies;
-    await Promise.all([
-      queryClient.prefetchQuery("myInfo", () =>
-        myInfoService(cookies["accessToken"])
-      ),
-    ]);
-  }
+
+const getIndexPageProps: GetServerSideProps = async () => {
   return {
-    props: {
-      dehydratedState: dehydrate(queryClient),
-    },
+    props: {},
   };
 };
+export const getServerSideProps = withAdviceSSR(getIndexPageProps);
 
 const TextInput = forwardRef<HTMLInputElement, TextInputProps>((props, ref) => {
   return (
