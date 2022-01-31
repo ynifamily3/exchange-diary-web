@@ -36,13 +36,8 @@ import { getMyInfo } from "../repo/myinfo";
 import { postLogin } from "../repo/login";
 import { postLogout } from "../repo/logout";
 import { withAdviceSSR } from "../middleware";
-
-type InputProps = React.ComponentProps<typeof Input>;
-
-type TextInputProps = InputProps & {
-  label: string;
-  id: string;
-};
+import TextInput from "../components/atom/TextInput";
+import LoginForm from "../components/LoginForm";
 
 const getIndexPageProps: GetServerSideProps = async () => {
   return {
@@ -50,97 +45,6 @@ const getIndexPageProps: GetServerSideProps = async () => {
   };
 };
 export const getServerSideProps = withAdviceSSR(getIndexPageProps);
-
-const TextInput = forwardRef<HTMLInputElement, TextInputProps>((props, ref) => {
-  return (
-    <FormControl>
-      <FormLabel htmlFor={props.id}>{props.label}</FormLabel>
-      <Input {...props} id={props.id} ref={ref} />
-    </FormControl>
-  );
-});
-TextInput.displayName = "TextInput"; // eslint error를 피할 수 있다.
-
-const LoginForm = ({
-  firstFieldRef,
-  onCancel,
-}: {
-  firstFieldRef: React.RefObject<HTMLInputElement>;
-  onCancel: () => void;
-}) => {
-  const toast = useToast({ isClosable: true, position: "top-end" });
-  const queryClient = useQueryClient();
-  const [idValue, setIdValue] = React.useState("");
-  const [passwordValue, setPasswordValue] = React.useState("");
-  const mutation = useMutation(postLogin, {
-    onSuccess: () => {
-      queryClient.invalidateQueries("myInfo");
-      // close the popover
-      onCancel();
-    },
-    onError: () => {
-      // handle login Error
-      toast({
-        id: "login-error",
-        title: "로그인",
-        description: "아이디 또는 비밀번호가 일치하지 않습니다.",
-        status: "error",
-        duration: 5 * 1000,
-      });
-    },
-    onSettled: () => {},
-  });
-  const isDisabled = !idValue || !passwordValue;
-  const isLogining = mutation.isLoading;
-
-  const handleLogin = () => {
-    mutation.mutate({ id: idValue, password: passwordValue });
-  };
-
-  // handle enter key
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      if (isLogining) return;
-      if (isDisabled) return;
-      handleLogin();
-    }
-  };
-
-  return (
-    <Stack spacing={4}>
-      <TextInput
-        label="아이디"
-        id="id"
-        ref={firstFieldRef}
-        value={idValue}
-        onChange={(e: any) => setIdValue(e.target.value)}
-        disabled={isLogining}
-        onKeyDown={handleKeyDown}
-      />
-      <TextInput
-        label="비밀번호"
-        id="password"
-        type="password"
-        value={passwordValue}
-        onChange={(e: any) => setPasswordValue(e.target.value)}
-        disabled={isLogining}
-        onKeyDown={handleKeyDown}
-      />
-      <ButtonGroup d="flex" justifyContent="flex-end">
-        <Button onClick={onCancel}>취소</Button>
-        <Button
-          isDisabled={isDisabled}
-          colorScheme={"teal"}
-          isLoading={isLogining}
-          onClick={handleLogin}
-        >
-          로그인
-        </Button>
-      </ButtonGroup>
-    </Stack>
-  );
-};
-LoginForm.displayName = "LoginForm";
 
 const Home: NextPage = () => {
   const { onOpen, onClose, isOpen } = useDisclosure();
@@ -159,7 +63,6 @@ const Home: NextPage = () => {
     mutation.mutate();
   };
   useEffect(() => {
-    console.log("run effect");
     // get cookie
     const cookies = document.cookie;
     // extract redirectReason from cookie
@@ -205,10 +108,8 @@ const Home: NextPage = () => {
               </PopoverTrigger>
               <Portal>
                 <PopoverContent p={5}>
-                  {/* <FocusLock> */}
                   <PopoverArrow />
                   <LoginForm firstFieldRef={firstFieldRef} onCancel={onClose} />
-                  {/* </FocusLock> */}
                 </PopoverContent>
               </Portal>
             </Popover>
