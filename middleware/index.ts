@@ -2,6 +2,7 @@ import { GetServerSideProps, NextApiRequest, NextApiResponse } from "next";
 import { dehydrate, QueryClient } from "react-query";
 import { myInfoService } from "../service/myInfoService";
 import { MyInfoServiceResult } from "../types";
+import refreshTokenAspect from "./aspect/refreshTokenAspect";
 import { refreshToken } from "./refreshToken";
 
 const withAdvice = (
@@ -9,19 +10,8 @@ const withAdvice = (
 ) => {
   return new Proxy(handler, {
     apply: async (target, thisArg, args: Parameters<typeof handler>) => {
-      const [req, res] = args;
       const fnName = Reflect.get(handler, "name");
-      // refresh token 의 경우
-      const beforeRefreshTokenFns = [/^myInfo/];
-      if (beforeRefreshTokenFns.some((regex) => regex.test(fnName))) {
-        if (req.method !== "GET") {
-          res.status(500).end();
-          return;
-        }
-        await Reflect.apply(refreshToken, thisArg, args);
-      }
-      // end of refresh token
-
+      await refreshTokenAspect(fnName, refreshToken, thisArg, args);
       return Reflect.apply(target, thisArg, args);
     },
   });
