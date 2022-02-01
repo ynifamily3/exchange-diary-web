@@ -2,7 +2,7 @@ import { useToast, UseToastOptions } from "@chakra-ui/react";
 import { useRef } from "react";
 type ToastOptions = UseToastOptions | undefined;
 
-const useReplaceableToast = (options: ToastOptions) => {
+const useReplaceableToast = (options?: ToastOptions) => {
   const toast = useToast(options);
   const toastIdRef = useRef<number>(0);
   const replaceableToast = (options: ToastOptions) => {

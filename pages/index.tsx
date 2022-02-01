@@ -31,13 +31,21 @@ import {
 import { ArrowLeftIcon, ArrowRightIcon } from "@chakra-ui/icons";
 import Image from "next/image";
 import React, { forwardRef, useEffect, useRef } from "react";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import {
+  QueryErrorResetBoundary,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "react-query";
 import { getMyInfo } from "../repo/myinfo";
 import { postLogin } from "../repo/login";
 import { postLogout } from "../repo/logout";
 import { withAdviceSSR } from "../middleware";
 import TextInput from "../components/atom/TextInput";
 import LoginForm from "../components/LoginForm";
+import GNB from "../components/GNB";
+import { ErrorBoundary } from "react-error-boundary";
+import useDisposeRedirection from "../hooks/useDisposeRedirection";
 
 const getIndexPageProps: GetServerSideProps = async () => {
   return {
@@ -47,39 +55,8 @@ const getIndexPageProps: GetServerSideProps = async () => {
 export const getServerSideProps = withAdviceSSR(getIndexPageProps);
 
 const Home: NextPage = () => {
-  const { onOpen, onClose, isOpen } = useDisclosure();
-  const toast = useToast();
-  const queryClient = useQueryClient();
-  const mutation = useMutation(postLogout, {
-    onSuccess: () => {
-      queryClient.invalidateQueries("myInfo");
-    },
-  });
-  const { data, isFetching } = useQuery("myInfo", getMyInfo);
-  const firstFieldRef = useRef<HTMLInputElement>(null);
-  const isLogin = data && data.isLogin;
-  const nickname = data && data.isLogin && data.memberNickname;
-  const handleLogout = () => {
-    mutation.mutate();
-  };
-  useEffect(() => {
-    // get cookie
-    const cookies = document.cookie;
-    // extract redirectReason from cookie
-    const redirectReason = cookies
-      .split(";")
-      .find((cookie) => cookie.startsWith("redirectReason="))
-      ?.split("=")[1];
-    // remove cookie
-    document.cookie = "redirectReason=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-    if (!redirectReason) return;
-    toast({
-      title: redirectReason,
-      description: `로그인이 필요합니다.`,
-    });
-    onOpen();
-    setTimeout(() => firstFieldRef.current?.focus(), 0); // 이상하게 수동으로 트리거 해 줘야 한다.
-  }, [toast, onOpen]);
+  const defaultIsOpenLoginPopover = useDisposeRedirection();
+
   return (
     <>
       <Head>
@@ -89,41 +66,21 @@ const Home: NextPage = () => {
         <HStack>
           <Heading paddingBlock={3}>교환일기</Heading>
           <Spacer />
-          {isFetching && <Skeleton width="30px" height="18px" />}
-          {!isFetching && isLogin && (
-            <Badge colorScheme="green">{nickname}</Badge>
-          )}
-          {!isLogin && (
-            <Popover
-              isOpen={isOpen}
-              initialFocusRef={firstFieldRef}
-              onOpen={onOpen}
-              onClose={onClose}
-              placement="bottom-end"
-              /* 3rd party extension 상호작용 문제 등이 발생할 수 있음 ex) 1password */
-              closeOnBlur={false}
-            >
-              <PopoverTrigger>
-                <Button>로그인</Button>
-              </PopoverTrigger>
-              <Portal>
-                <PopoverContent p={5}>
-                  <PopoverArrow />
-                  <LoginForm firstFieldRef={firstFieldRef} onCancel={onClose} />
-                </PopoverContent>
-              </Portal>
-            </Popover>
-          )}
-          {isLogin && (
-            <Button onClick={handleLogout} isLoading={mutation.isLoading}>
-              로그아웃
-            </Button>
-          )}
-          {!isLogin && (
-            <NextLink href="/signup" passHref>
-              <Button as="a">회원가입</Button>
-            </NextLink>
-          )}
+          <QueryErrorResetBoundary>
+            {({ reset }) => (
+              <ErrorBoundary
+                onReset={reset}
+                fallbackRender={({ resetErrorBoundary }) => (
+                  <Box>
+                    There was 에러!
+                    <Button onClick={resetErrorBoundary}>재시도</Button>
+                  </Box>
+                )}
+              >
+                <GNB defaultIsOpenLoginPopover={defaultIsOpenLoginPopover} />
+              </ErrorBoundary>
+            )}
+          </QueryErrorResetBoundary>
         </HStack>
         <VStack
           as="article"
