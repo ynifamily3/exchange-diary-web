@@ -19,8 +19,6 @@ const withAdvice = (
 const withAdviceSSR = (handler: GetServerSideProps) => {
   return new Proxy(handler, {
     apply: async (target, thisArg, args: Parameters<typeof handler>) => {
-      // TODO AccessToken 갱신
-      // SSR접근일 경우 prefetch Query해야 함.
       const [{ req, res }] = args;
       const queryClient = new QueryClient();
       const fnName = Reflect.get(handler, "name");
@@ -34,7 +32,7 @@ const withAdviceSSR = (handler: GetServerSideProps) => {
         ]);
 
         // 비로그인 유저 튕김
-        const checkLoginTarget = [/^getWritePage/];
+        const checkLoginTarget = [/^getWritePage/, /^getGroupsPage/];
         if (checkLoginTarget.some((regex) => regex.test(fnName))) {
           if (
             !queryClient.getQueryData<MyInfoServiceResult>("myInfo")?.isLogin

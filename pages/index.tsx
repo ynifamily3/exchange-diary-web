@@ -30,7 +30,7 @@ import {
 } from "@chakra-ui/react";
 import { ArrowLeftIcon, ArrowRightIcon } from "@chakra-ui/icons";
 import Image from "next/image";
-import React, { forwardRef, useEffect, useRef } from "react";
+import React, { forwardRef, Suspense, useEffect, useRef } from "react";
 import {
   QueryErrorResetBoundary,
   useMutation,
@@ -46,6 +46,7 @@ import LoginForm from "../components/LoginForm";
 import GNB from "../components/GNB";
 import { ErrorBoundary } from "react-error-boundary";
 import useDisposeRedirection from "../hooks/useDisposeRedirection";
+import SSRSafeSuspense from "../components/hoc/SSRSafeSuspense";
 
 const getIndexPageProps: GetServerSideProps = async () => {
   return {
@@ -66,21 +67,7 @@ const Home: NextPage = () => {
         <HStack>
           <Heading paddingBlock={3}>교환일기</Heading>
           <Spacer />
-          <QueryErrorResetBoundary>
-            {({ reset }) => (
-              <ErrorBoundary
-                onReset={reset}
-                fallbackRender={({ resetErrorBoundary }) => (
-                  <Box>
-                    There was 에러!
-                    <Button onClick={resetErrorBoundary}>재시도</Button>
-                  </Box>
-                )}
-              >
-                <GNB defaultIsOpenLoginPopover={defaultIsOpenLoginPopover} />
-              </ErrorBoundary>
-            )}
-          </QueryErrorResetBoundary>
+          <GNB defaultIsOpenLoginPopover={defaultIsOpenLoginPopover} />
         </HStack>
         <VStack
           as="article"
