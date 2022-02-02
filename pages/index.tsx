@@ -7,10 +7,7 @@ import {
   Button,
   Container,
   Flex,
-  Heading,
-  HStack,
   IconButton,
-  Spacer,
   Text,
   VStack,
 } from "@chakra-ui/react";
@@ -18,10 +15,7 @@ import { ArrowLeftIcon, ArrowRightIcon } from "@chakra-ui/icons";
 import Image from "next/image";
 import { withAdviceSSR } from "../middleware";
 import GNB from "../components/GNB";
-
 import useDisposeRedirection from "../hooks/useDisposeRedirection";
-import { useEffect } from "react";
-import nProgress from "nprogress";
 
 const getIndexPageProps: GetServerSideProps = async () => {
   return {
@@ -39,11 +33,7 @@ const Home: NextPage = () => {
         <title>교환일기</title>
       </Head>
       <Container maxW="container.xl">
-        <HStack>
-          <Heading paddingBlock={3}>교환일기</Heading>
-          <Spacer />
-          <GNB defaultIsOpenLoginPopover={defaultIsOpenLoginPopover} />
-        </HStack>
+        <GNB defaultIsOpenLoginPopover={defaultIsOpenLoginPopover} />
         <VStack
           as="article"
           paddingTop={3}
@@ -78,7 +68,9 @@ const Home: NextPage = () => {
         <VStack spacing={4} position={"relative"}>
           <Box>
             <NextLink href="/write" passHref>
-              <Button as="a">시작하기</Button>
+              <Button as="a" size={"lg"}>
+                작성하러 가기!
+              </Button>
             </NextLink>
           </Box>
           <Box width="100%" overflow={"hidden"}>

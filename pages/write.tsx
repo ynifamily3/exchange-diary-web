@@ -35,6 +35,7 @@ import {
 import dynamic from "next/dynamic";
 import { canvasContext, CanvasData } from "../context/canvas";
 import { withAdviceSSR } from "../middleware";
+import GNB from "../components/GNB";
 const DiaryCanvas = dynamic(() => import("../components/DiaryCanvas"), {
   ssr: false,
 });
@@ -122,6 +123,7 @@ const Write: NextPage = () => {
         <title>일기 작성 - 교환일기</title>
       </Head>
       <Container maxW="container.xl">
+        <GNB />
         <VStack>
           <Heading paddingBlock={3} fontFamily={"Pretendard"}>
             일기 작성하기

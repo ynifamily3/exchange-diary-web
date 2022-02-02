@@ -1,12 +1,15 @@
 import {
   Badge,
   Button,
+  Heading,
+  HStack,
   Popover,
   PopoverArrow,
   PopoverContent,
   PopoverTrigger,
   Portal,
   Skeleton,
+  Spacer,
   Text,
   useDisclosure,
 } from "@chakra-ui/react";
@@ -45,7 +48,13 @@ const GNB: FC<GNBProps> = ({ defaultIsOpenLoginPopover }) => {
 
   if (!isLogin) {
     return (
-      <>
+      <HStack>
+        <NextLink href="/" passHref>
+          <Heading as="a" paddingBlock={3}>
+            교환일기
+          </Heading>
+        </NextLink>
+        <Spacer />
         {!showSkeleton ? (
           <Popover
             isOpen={isOpen}
@@ -71,12 +80,18 @@ const GNB: FC<GNBProps> = ({ defaultIsOpenLoginPopover }) => {
         <NextLink href="/signup" passHref>
           <Button as="a">회원가입</Button>
         </NextLink>
-      </>
+      </HStack>
     );
   }
 
   return (
-    <>
+    <HStack>
+      <NextLink href="/" passHref>
+        <Heading as="a" paddingBlock={3}>
+          교환일기
+        </Heading>
+      </NextLink>
+      <Spacer />
       <Badge colorScheme="teal" fontSize={"0.8em"}>
         {nickname}
       </Badge>
@@ -93,7 +108,7 @@ const GNB: FC<GNBProps> = ({ defaultIsOpenLoginPopover }) => {
           일기장
         </Button>
       </NextLink>
-    </>
+    </HStack>
   );
 };
 

@@ -28,6 +28,7 @@ import { SignUpApiInput } from "../types";
 import { postSignUp } from "../repo/signup";
 import { useRouter } from "next/router";
 import { withAdviceSSR } from "../middleware";
+import GNB from "../components/GNB";
 
 const getSignUpPageProps: GetServerSideProps = async () => {
   return {
@@ -112,6 +113,7 @@ const SignUp: NextPage = () => {
         <title>회원가입 - 교환일기</title>
       </Head>
       <Container maxW="container.xl">
+        <GNB />
         <VStack>
           <Heading paddingBlock={3}>회원가입</Heading>
           <Spacer />
