@@ -3,50 +3,25 @@ import Head from "next/head";
 import NextLink from "next/link";
 import { css } from "@emotion/react";
 import {
-  Badge,
   Box,
   Button,
-  ButtonGroup,
   Container,
   Flex,
-  FormControl,
-  FormLabel,
   Heading,
   HStack,
   IconButton,
-  Input,
-  Popover,
-  PopoverArrow,
-  PopoverContent,
-  PopoverTrigger,
-  Portal,
-  Skeleton,
   Spacer,
-  Stack,
   Text,
-  useDisclosure,
-  useToast,
   VStack,
 } from "@chakra-ui/react";
 import { ArrowLeftIcon, ArrowRightIcon } from "@chakra-ui/icons";
 import Image from "next/image";
-import React, { forwardRef, Suspense, useEffect, useRef } from "react";
-import {
-  QueryErrorResetBoundary,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "react-query";
-import { getMyInfo } from "../repo/myinfo";
-import { postLogin } from "../repo/login";
-import { postLogout } from "../repo/logout";
 import { withAdviceSSR } from "../middleware";
-import TextInput from "../components/atom/TextInput";
-import LoginForm from "../components/LoginForm";
 import GNB from "../components/GNB";
-import { ErrorBoundary } from "react-error-boundary";
+
 import useDisposeRedirection from "../hooks/useDisposeRedirection";
-import SSRSafeSuspense from "../components/hoc/SSRSafeSuspense";
+import { useEffect } from "react";
+import nProgress from "nprogress";
 
 const getIndexPageProps: GetServerSideProps = async () => {
   return {
@@ -118,12 +93,7 @@ const Home: NextPage = () => {
               left={0}
               zIndex={1}
             />
-            <Flex
-              w="300%"
-              css={css`
-                /* transform: translateX(${471 * 2}px); */
-              `}
-            >
+            <Flex w="300%">
               <Flex justify={"center"} bg={"red.100"} w="inherit">
                 <Image
                   loading="lazy"

@@ -1,14 +1,18 @@
 import "../styles/globals.css";
+import "../styles/nprogress.css";
 import { AppProps } from "next/app";
 import { ChakraProvider } from "@chakra-ui/react";
 import { Hydrate, QueryClient, QueryClientProvider } from "react-query";
 import { useState } from "react";
 import { ReactQueryDevtools } from "react-query/devtools";
-import axios from "axios";
+import NProgress from "nprogress";
+import Router from "next/router";
 
-// axios baseURL 설정
-const isServer = typeof window === "undefined";
-axios.defaults.baseURL = isServer ? "http://localhost:3000" : "";
+// NProgress.configure({ showSpinner: true });
+
+Router.events.on("routeChangeStart", () => NProgress.start());
+Router.events.on("routeChangeComplete", () => NProgress.done());
+Router.events.on("routeChangeError", () => NProgress.done());
 
 function MyApp({ Component, pageProps }: AppProps) {
   const [queryClient] = useState(
