@@ -48,8 +48,6 @@ const getWritePageProps: GetServerSideProps = async () => {
 
 export const getServerSideProps = withAdviceSSR(getWritePageProps);
 
-const inLayData = ["diary.png"];
-
 const Write: NextPage = () => {
   const toast = useToast();
   const router = useRouter();
@@ -96,10 +94,11 @@ const Write: NextPage = () => {
     }
   }, [myInfoData, router]);
 
-  const [inlay, setInlay] = useState(0);
   // blob url로 만들어진 image
   const [attachedImage, setAttachedImage] = useState<string | null>(null);
   const [content, setContent] = useState("");
+  // 커서
+  const [selectionPosition, setSelectionPosition] = useState<number>(0);
 
   const canvasData = useMemo<CanvasData>(() => {
     return {
@@ -107,9 +106,10 @@ const Write: NextPage = () => {
       font: fontData[font],
       text: content,
       imageUrl: attachedImage,
-      inlayImageUrl: inLayData[inlay],
+      inlayImageUrl: "diary.png",
+      selectionPosition,
     };
-  }, [attachedImage, content, font, fontReadyState, inlay]);
+  }, [attachedImage, content, font, fontReadyState, selectionPosition]);
 
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -133,7 +133,7 @@ const Write: NextPage = () => {
           <Box alignSelf={"flex-start"}>
             <Menu autoSelect={false}>
               <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
-                <Flex alignItems={"center"} gap={3}>
+                <Flex alignItems="center" gap={3}>
                   {fontData[font]}{" "}
                   {fontLoadingState[font] && <Spinner size="xs" />}
                   {fontReadyState[font] && <CheckIcon color={"blue.500"} />}
@@ -179,6 +179,10 @@ const Write: NextPage = () => {
           />
           <HStack spacing={4}>
             <Textarea
+              onKeyUp={(e) => {
+                const { selectionStart } = e.currentTarget;
+                setSelectionPosition(selectionStart ?? 0);
+              }}
               placeholder="일기 내용"
               value={content}
               onChange={(e) => setContent(e.target.value)}

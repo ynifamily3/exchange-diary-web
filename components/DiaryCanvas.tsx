@@ -1,5 +1,5 @@
 import { useContext, useEffect, useRef, useState } from "react";
-import { Image as KImage, Layer, Stage, Text } from "react-konva";
+import { Image as KImage, Layer, Rect, Stage, Text } from "react-konva";
 import { canvasContext } from "../context/canvas";
 import useImage from "use-image";
 import { Stage as StageType } from "konva/lib/Stage";
@@ -51,30 +51,26 @@ const alphabetPos: Array<{ x: number; y: number }> = [
 const BackgroundImage = ({ imageUrl }: { imageUrl: string }) => {
   const [image] = useImage(imageUrl);
   return (
-    <KImage image={image} width={800} height={603} preventDefault={false} />
+    <KImage image={image} width={220} height={300} preventDefault={false} />
   );
 };
 
 const FrontImage = ({ imageUrl }: { imageUrl: string }) => {
-  const standardSize = 330;
-  const startX = 419;
-  const startY = 60;
+  const maxWidth = 197;
+  const maxHeight = 147;
+  const startX = 13;
+  const startY = 38;
+
   const [image] = useImage(imageUrl);
   if (!(image?.width && image?.height)) {
     return null;
   }
-  // width와 height 중 긴 쪽을 기준으로 330px로 맞춰 주고 짧은 쪽을 비율로 맞춰 준다.
-  const width =
-    image.width > image.height
-      ? standardSize
-      : standardSize * (image.width / image.height);
-  const height =
-    image.width > image.height
-      ? standardSize * (image.height / image.width)
-      : standardSize;
-  // 중앙 정렬용
-  const x = startX + (standardSize - width) / 2;
-  const y = startY + (standardSize - height) / 2;
+  // width와 height 중 긴 쪽을 기준으로 맞춰 주고 짧은 쪽을 비율로 맞춰 준다.
+  const ratio = Math.max(image.width / maxWidth, image.height / maxHeight);
+  const width = image.width / ratio;
+  const height = image.height / ratio;
+  const x = startX + (maxWidth - width) / 2;
+  const y = startY + (maxHeight - height) / 2;
 
   return (
     <KImage
@@ -92,9 +88,9 @@ const FrontImage = ({ imageUrl }: { imageUrl: string }) => {
 
 const DiaryCanvas = () => {
   const stageRef = useRef<StageType>(null);
-  const sceneWidth = useRef<number>(800);
-  const sceneHeight = useRef<number>(603);
-  const { font, fontLoaded, imageUrl, inlayImageUrl, text } =
+  const sceneWidth = useRef<number>(220);
+  const sceneHeight = useRef<number>(300);
+  const { font, fontLoaded, imageUrl, inlayImageUrl, text, selectionPosition } =
     useContext(canvasContext);
 
   // handle window resize event
@@ -103,9 +99,11 @@ const DiaryCanvas = () => {
     const fitStageIntoParentContainer = debounce(
       () => {
         if (!stageRef.current) return;
-        const containerWidth =
+        const containerWidth = Math.min(
           (stageRef.current.content.parentElement?.parentElement?.parentElement
-            ?.offsetWidth as number) || 0;
+            ?.offsetWidth as number) || 0,
+          600
+        );
 
         const scale = containerWidth / sceneWidth.current;
         stageRef.current.width(sceneWidth.current * scale);
@@ -138,23 +136,18 @@ const DiaryCanvas = () => {
       <Layer>
         <BackgroundImage imageUrl={inlayImageUrl} />
         {imageUrl && <FrontImage imageUrl={imageUrl} />}
-        {text
-          .split("")
-          .slice(0, alphabetPos.length)
-          .map((char, i) => (
-            <Text
-              key={i}
-              text={char}
-              fontFamily={fontLoaded ? font : undefined}
-              fontSize={24}
-              x={alphabetPos[i].x}
-              y={alphabetPos[i].y}
-              align="center"
-              verticalAlign="middle"
-              width={30}
-              height={30}
-            />
-          ))}
+        <Text
+          text={text}
+          fontFamily={fontLoaded ? font : undefined}
+          fontSize={16}
+          x={14}
+          y={190}
+          wrap="char"
+          width={195}
+          lineHeight={1.2}
+        />
+        {/* cursor (blink) */}
+        <Rect x={0} y={0} width={1} height={16 * 1.2} fill="black" />
 
         <Text text={`x: ${x}`} fontSize={12} />
         <Text text={`y: ${y}`} fontSize={12} y={12} />

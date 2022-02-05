@@ -13,6 +13,7 @@ export type CanvasData = {
   text: string;
   imageUrl: string | null;
   inlayImageUrl: string;
+  selectionPosition: number;
 };
 
 // context
@@ -23,6 +24,7 @@ export const canvasContext = createContext<CanvasData>({
   text: "",
   imageUrl: null,
   inlayImageUrl: "diary.png",
+  selectionPosition: 0,
 });
 
 // Provider
