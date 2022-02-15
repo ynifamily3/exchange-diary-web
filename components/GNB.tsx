@@ -67,12 +67,12 @@ const GNB: FC<GNBProps> = ({ defaultIsOpenLoginPopover }) => {
             <PopoverTrigger>
               <Button>로그인</Button>
             </PopoverTrigger>
-            <Portal>
-              <PopoverContent p={5}>
-                <PopoverArrow />
-                <LoginForm firstFieldRef={firstFieldRef} onCancel={onClose} />
-              </PopoverContent>
-            </Portal>
+            {/* <Portal>  ==> build된거 ssr hydrate 빈 <span/>이슈 */}
+            <PopoverContent p={5}>
+              <PopoverArrow />
+              <LoginForm firstFieldRef={firstFieldRef} onCancel={onClose} />
+            </PopoverContent>
+            {/* </Portal> */}
           </Popover>
         ) : (
           <Skeleton width="150px" height="20px" />

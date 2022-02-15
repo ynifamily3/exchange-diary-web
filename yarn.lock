@@ -781,7 +781,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@chakra-ui/system@npm:1.10.3":
+"@chakra-ui/system@npm:1.10.3, @chakra-ui/system@npm:^1.10.3":
   version: 1.10.3
   resolution: "@chakra-ui/system@npm:1.10.3"
   dependencies:
@@ -2304,6 +2304,7 @@ __metadata:
   dependencies:
     "@chakra-ui/icons": ^1.1.1
     "@chakra-ui/react": ^1.7.4
+    "@chakra-ui/system": ^1.10.3
     "@emotion/react": ^11
     "@emotion/styled": ^11
     "@types/axios": ^0.14.0
