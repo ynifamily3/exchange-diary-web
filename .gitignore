@@ -38,3 +38,13 @@ yarn-error.log*
 
 # key
 config/private.key
+
+# zero-install 미지원시 아래 주석 제거
+# .pnp.*
+.yarn/*
+!.yarn/cache
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions

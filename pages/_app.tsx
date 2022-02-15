@@ -8,7 +8,7 @@ import { ReactQueryDevtools } from "react-query/devtools";
 import NProgress from "nprogress";
 import Router from "next/router";
 
-// NProgress.configure({ showSpinner: true });
+NProgress.configure({ showSpinner: false, minimum: 0.3, trickleSpeed: 300 });
 
 Router.events.on("routeChangeStart", () => NProgress.start());
 Router.events.on("routeChangeComplete", () => NProgress.done());
