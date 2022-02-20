@@ -54,3 +54,5 @@ export type LoginApiResult = void;
 export type SignUpApiInput = SignUpInput;
 export type SignUpApiResult = void;
 export type MyInfoApiResult = MyInfoServiceResult;
+
+export type MyGroupsApiResult = [];

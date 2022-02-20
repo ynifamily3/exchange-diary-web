@@ -1,7 +1,6 @@
 import type { GetServerSideProps, NextPage } from "next";
 import Head from "next/head";
-import { useQueries, useQuery } from "react-query";
-import { getMyInfo } from "../repo/myinfo";
+import { useQueries } from "react-query";
 import {
   Box,
   Button,
@@ -23,7 +22,6 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useRouter } from "next/router";
 import { fontData, pretendardFont } from "../util/font";
 import {
   ArrowForwardIcon,
@@ -36,6 +34,7 @@ import dynamic from "next/dynamic";
 import { canvasContext, CanvasData } from "../context/canvas";
 import { withAdviceSSR } from "../middleware";
 import GNB from "../components/GNB";
+import { useAuth } from "../hooks/useAuth";
 const DiaryCanvas = dynamic(() => import("../components/DiaryCanvas"), {
   ssr: false,
 });
@@ -49,9 +48,7 @@ const getWritePageProps: GetServerSideProps = async () => {
 export const getServerSideProps = withAdviceSSR(getWritePageProps);
 
 const Write: NextPage = () => {
-  const toast = useToast();
-  const router = useRouter();
-  const { data: myInfoData } = useQuery("myInfo", getMyInfo);
+  const { data: myInfoData } = useAuth();
   const [fontTouched, setFontTouched] = useState(() =>
     Array.from({ length: fontData.length }, (_, i) => i === 0)
   );
@@ -85,14 +82,6 @@ const Write: NextPage = () => {
     () => fontQueriesResult.map((result) => result.isError),
     [fontQueriesResult]
   );
-
-  // login check
-  useEffect(() => {
-    if (!myInfoData?.isLogin) {
-      document.cookie = `redirectReason=Not Login; Path=/`;
-      router.replace("/");
-    }
-  }, [myInfoData, router]);
 
   // blob url로 만들어진 image
   const [attachedImage, setAttachedImage] = useState<string | null>(null);

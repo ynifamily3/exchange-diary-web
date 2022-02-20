@@ -23,11 +23,20 @@ const withAdviceSSR = (handler: GetServerSideProps) => {
       const queryClient = new QueryClient();
       const fnName = Reflect.get(handler, "name");
       const { cookies } = req;
-      await Promise.all([
-        queryClient.prefetchQuery("myInfo", () =>
-          myInfoService(cookies["accessToken"])
-        ),
-      ]);
+
+      const prefetches: [string, () => Promise<unknown>][] = [
+        ["myInfo", () => myInfoService(cookies["accessToken"])],
+      ];
+
+      // 그룹스
+      [/^getGroupsPage/].some((regex) => regex.test(fnName)) &&
+        prefetches.push(["myGroups", () => Promise.resolve([9999])]);
+
+      await Promise.all(
+        prefetches.map((arg) =>
+          queryClient.prefetchQuery.apply(queryClient, arg)
+        )
+      );
 
       // 비로그인 유저 튕김
       const checkLoginTarget = [/^getWritePage/, /^getGroupsPage/];
