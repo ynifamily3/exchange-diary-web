@@ -28,6 +28,15 @@ export type JWT<Payload> = Payload & {
 };
 export type JWTMyinfoPayload = MyInfo;
 
+export type TeamInfo = {
+  teamId: number;
+  teamName: string;
+  teamPublicUrl: string | null;
+  teamPhotoUrl: string | null;
+  numberOfTeamMember: number;
+  numberOfTeamMemberWhoPassed: number;
+};
+
 // Provided to Service Functions input & result
 export type LoginServiceInput = Identity;
 export type LoginServiceResult = Tokens | null;
@@ -39,6 +48,9 @@ export type MyInfoServiceResult =
   | {
       isLogin: false;
     };
+
+export type MyTeamsServiceInput = AccessToken;
+export type MyTeamsServiceResult = TeamInfo[];
 
 export type SignUpServiceInput = SignUpInput;
 export type SignUpServiceResult = LoginServiceResult;
@@ -54,5 +66,4 @@ export type LoginApiResult = void;
 export type SignUpApiInput = SignUpInput;
 export type SignUpApiResult = void;
 export type MyInfoApiResult = MyInfoServiceResult;
-
-export type MyGroupsApiResult = [];
+export type MyTeamsApiResult = MyTeamsServiceResult;

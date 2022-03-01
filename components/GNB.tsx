@@ -7,12 +7,12 @@ import {
   PopoverArrow,
   PopoverContent,
   PopoverTrigger,
-  Portal,
   Skeleton,
   Spacer,
   Text,
   useDisclosure,
 } from "@chakra-ui/react";
+import { useColorMode } from "@chakra-ui/system";
 import { FC, useRef } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { getMyInfo } from "../repo/myinfo";
@@ -45,6 +45,8 @@ const GNB: FC<GNBProps> = ({ defaultIsOpenLoginPopover }) => {
     logoutMutation.mutate();
   };
   const showSkeleton = isFetching && !isLogin;
+
+  const { colorMode, toggleColorMode } = useColorMode();
 
   if (!isLogin) {
     return (
@@ -80,6 +82,9 @@ const GNB: FC<GNBProps> = ({ defaultIsOpenLoginPopover }) => {
         <NextLink href="/signup" passHref>
           <Button as="a">회원가입</Button>
         </NextLink>
+        <Button onClick={toggleColorMode}>
+          {colorMode === "light" ? "Dark" : "Light"}
+        </Button>
       </HStack>
     );
   }
@@ -103,11 +108,14 @@ const GNB: FC<GNBProps> = ({ defaultIsOpenLoginPopover }) => {
       >
         로그아웃
       </Button>
-      <NextLink href="/groups" passHref>
+      <NextLink href="/teams" passHref>
         <Button as="a" variant="solid" colorScheme={"teal"}>
-          일기장
+          팀
         </Button>
       </NextLink>
+      <Button onClick={toggleColorMode}>
+        {colorMode === "light" ? "어둡게" : "밝게"}
+      </Button>
     </HStack>
   );
 };

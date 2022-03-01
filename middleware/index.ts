@@ -1,6 +1,7 @@
 import { GetServerSideProps, NextApiRequest, NextApiResponse } from "next";
 import { dehydrate, QueryClient } from "react-query";
 import { myInfoService } from "../service/myInfoService";
+import { myTeamsService } from "../service/myTeamsService";
 import { MyInfoServiceResult } from "../types";
 import refreshTokenAspect from "./aspect/refreshTokenAspect";
 import { refreshToken } from "./refreshToken";
@@ -28,9 +29,11 @@ const withAdviceSSR = (handler: GetServerSideProps) => {
         ["myInfo", () => myInfoService(cookies["accessToken"])],
       ];
 
-      // 그룹스
-      [/^getGroupsPage/].some((regex) => regex.test(fnName)) &&
-        prefetches.push(["myGroups", () => Promise.resolve([9999])]);
+      [/^getTeamsPage/].some((regex) => regex.test(fnName)) &&
+        prefetches.push([
+          "myTeams",
+          () => myTeamsService(cookies["accessToken"]),
+        ]);
 
       await Promise.all(
         prefetches.map((arg) =>
